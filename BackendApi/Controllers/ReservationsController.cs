@@ -11,30 +11,76 @@ namespace BackendApi.Controllers
         private readonly AppDbContext _db;
         public ReservationsController(AppDbContext db) => _db = db;
 
-        // GET: /api/reservations
+        private sealed class ReservationDto
+        {
+            public int ReservationId { get; set; }
+            public int UserId { get; set; }
+            public int RoomId { get; set; }
+            public DateTime CheckInDate { get; set; }
+            public DateTime CheckOutDate { get; set; }
+            public decimal TotalAmount { get; set; }
+            public string Status { get; set; } = string.Empty;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var reservations = await _db.Reservations
-                .AsNoTracking()
-                .Include(x => x.User) // optional: remove if you don't want full user payload
-                .Include(x => x.Room) // optional
-                .ToListAsync();
+            try
+            {
+                var items = await _db.Reservations.AsNoTracking()
+                    .Select(r => new ReservationDto
+                    {
+                        ReservationId = r.ReservationId,
+                        UserId = r.UserId,
+                        RoomId = r.RoomId,
+                        CheckInDate = r.CheckInDate,
+                        CheckOutDate = r.CheckOutDate,
+                        TotalAmount = r.TotalAmount,
+                        Status = r.Status
+                    })
+                    .ToListAsync();
 
-            return Ok(reservations);
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
-        // GET: /api/reservations/1001
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var reservation = await _db.Reservations
-                .AsNoTracking()
-                .Include(x => x.User) // optional
-                .Include(x => x.Room) // optional
-                .FirstOrDefaultAsync(x => x.ReservationId == id);
+            try
+            {
+                var item = await _db.Reservations.AsNoTracking()
+                    .Where(r => r.ReservationId == id)
+                    .Select(r => new ReservationDto
+                    {
+                        ReservationId = r.ReservationId,
+                        UserId = r.UserId,
+                        RoomId = r.RoomId,
+                        CheckInDate = r.CheckInDate,
+                        CheckOutDate = r.CheckOutDate,
+                        TotalAmount = r.TotalAmount,
+                        Status = r.Status
+                    })
+                    .FirstOrDefaultAsync();
 
-            return reservation is null ? NotFound() : Ok(reservation);
+                return item is null ? NotFound() : Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+    }
+}
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
     }
 }

@@ -10,13 +10,18 @@ namespace BackendApi.Controllers
         private readonly AppDbContext _db;
         public HealthController(AppDbContext db) => _db = db;
 
+        // sanity check: no DB touch
+        [HttpGet("ping")]
+        public IActionResult Ping() => Ok(new { ok = true });
+
+        // DB reachability + show actual exception text
         [HttpGet("db")]
         public async Task<IActionResult> Db()
         {
             try
             {
-                var can = await _db.Database.CanConnectAsync();
-                return can ? Ok(new { ok = true }) : StatusCode(500, new { ok = false });
+                var ok = await _db.Database.CanConnectAsync();
+                return ok ? Ok(new { ok = true }) : StatusCode(500, new { ok = false });
             }
             catch (Exception ex)
             {

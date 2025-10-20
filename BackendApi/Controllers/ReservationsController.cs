@@ -1,4 +1,5 @@
-﻿using BackendApi.Data;
+﻿// Controllers/ReservationsController.cs (GETs)
+using BackendApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,62 +26,40 @@ namespace BackendApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var items = await _db.Reservations.AsNoTracking()
-                    .Select(r => new ReservationDto
-                    {
-                        ReservationId = r.ReservationId,
-                        UserId = r.UserId,
-                        RoomId = r.RoomId,
-                        CheckInDate = r.CheckInDate,
-                        CheckOutDate = r.CheckOutDate,
-                        TotalAmount = r.TotalAmount,
-                        Status = r.Status
-                    })
-                    .ToListAsync();
+            var items = await _db.Reservations.AsNoTracking()
+                .Select(r => new ReservationDto
+                {
+                    ReservationId = r.ReservationId,
+                    UserId = r.UserId,
+                    RoomId = r.RoomId,
+                    CheckInDate = r.CheckInDate,
+                    CheckOutDate = r.CheckOutDate,
+                    TotalAmount = r.TotalAmount,
+                    Status = r.Status
+                })
+                .ToListAsync();
 
-                return Ok(items);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = ex.Message });
-            }
+            return Ok(items);
         }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                var item = await _db.Reservations.AsNoTracking()
-                    .Where(r => r.ReservationId == id)
-                    .Select(r => new ReservationDto
-                    {
-                        ReservationId = r.ReservationId,
-                        UserId = r.UserId,
-                        RoomId = r.RoomId,
-                        CheckInDate = r.CheckInDate,
-                        CheckOutDate = r.CheckOutDate,
-                        TotalAmount = r.TotalAmount,
-                        Status = r.Status
-                    })
-                    .FirstOrDefaultAsync();
+            var item = await _db.Reservations.AsNoTracking()
+                .Where(r => r.ReservationId == id)
+                .Select(r => new ReservationDto
+                {
+                    ReservationId = r.ReservationId,
+                    UserId = r.UserId,
+                    RoomId = r.RoomId,
+                    CheckInDate = r.CheckInDate,
+                    CheckOutDate = r.CheckOutDate,
+                    TotalAmount = r.TotalAmount,
+                    Status = r.Status
+                })
+                .FirstOrDefaultAsync();
 
-                return item is null ? NotFound() : Ok(item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = ex.Message });
-            }
-        }
-    }
-}
-
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = ex.Message });
-            }
+            return item is null ? NotFound() : Ok(item);
         }
     }
 }

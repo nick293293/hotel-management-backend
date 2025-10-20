@@ -16,6 +16,18 @@ namespace BackendApi.Controllers
         [HttpGet("ping")]
         public IActionResult Ping() => Ok(new { ok = true });
 
+        [HttpGet("cs")]
+        public IActionResult Cs([FromServices] IConfiguration cfg)
+        {
+            var raw = cfg.GetConnectionString("Default");
+            if (string.IsNullOrWhiteSpace(raw)) return Ok(new { hasValue = false });
+
+            // Parse without exposing password
+            var b = new MySqlConnector.MySqlConnectionStringBuilder(raw);
+            return Ok(new { hasValue = true, server = b.Server, port = b.Port, database = b.Database, user = b.UserID });
+        }
+
+
         // Can EF open the DB?
         [HttpGet("db")]
         public async Task<IActionResult> Db()

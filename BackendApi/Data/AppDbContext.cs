@@ -30,7 +30,7 @@ namespace BackendApi.Data
             u.ToTable("users");
             u.HasKey(x => x.UserId);
             u.Property(x => x.UserId).HasColumnName("user_id");
-            u.Property(x => x.PasswordHashed).HasColumnName("password").HasMaxLength(255).IsRequired(); // <-- fixed
+            u.Property(x => x.PasswordHashed).HasColumnName("password_hashed").HasMaxLength(255).IsRequired(); // <-- fixed
             u.Property(x => x.FirstName).HasColumnName("first_name").HasMaxLength(50).IsRequired();
             u.Property(x => x.LastName).HasColumnName("last_name").HasMaxLength(50).IsRequired();
             u.Property(x => x.Role).HasColumnName("role").HasMaxLength(50).IsRequired();

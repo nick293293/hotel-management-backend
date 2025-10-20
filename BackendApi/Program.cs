@@ -25,6 +25,16 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 // Always enable Swagger (dev + prod)
 app.UseSwagger();
 app.UseSwaggerUI();
+app.Use(async (ctx, next) =>
+{
+    try { await next(); }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine(ex);              // goes to Render logs
+        ctx.Response.StatusCode = 500;
+        await ctx.Response.WriteAsync(ex.Message); // TEMP: return error text
+    }
+});
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

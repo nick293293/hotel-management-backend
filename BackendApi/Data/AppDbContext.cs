@@ -15,6 +15,8 @@ namespace BackendApi.Data
         public DbSet<Room> Rooms { get; set; } = null!;
         public DbSet<Reservation> Reservations { get; set; } = null!;
 
+        public DbSet<Payment> Payments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // --- Ping table ---

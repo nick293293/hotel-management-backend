@@ -14,8 +14,7 @@ namespace BackendApi.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Room> Rooms { get; set; } = null!;
         public DbSet<Reservation> Reservations { get; set; } = null!;
-
-        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Payment> Payments { get; set; } = null!; // ✅ added
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,6 +76,24 @@ namespace BackendApi.Data
                .WithMany(r => r.Reservations)
                .HasForeignKey(x => x.RoomId)
                .HasConstraintName("fk_reservations_room");
+
+            // --- Payments table --- ✅ newly added mapping
+            var pay = modelBuilder.Entity<Payment>();
+            pay.ToTable("payments");
+            pay.HasKey(x => x.PaymentId);
+            pay.Property(x => x.PaymentId).HasColumnName("payment_id");
+            pay.Property(x => x.ReservationId).HasColumnName("reservation_id");
+            pay.Property(x => x.PaymentDate).HasColumnName("payment_date").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            pay.Property(x => x.TotalPrice).HasColumnName("total_price").HasColumnType("decimal(10,2)");
+            pay.Property(x => x.Status).HasColumnName("status").HasMaxLength(20).IsRequired();
+
+            // --- Payment → Reservation relationship ---
+            // --- Payment → Reservation relationship ---
+            pay.HasOne(x => x.Reservation)
+               .WithMany() // no navigation on Reservation
+               .HasForeignKey(x => x.ReservationId)
+               .HasConstraintName("fk_payments_reservation");
+
         }
     }
 }

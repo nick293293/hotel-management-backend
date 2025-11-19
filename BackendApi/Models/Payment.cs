@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BackendApi.Models
 {
@@ -13,7 +14,8 @@ namespace BackendApi.Models
         public int ReservationId { get; set; }
 
         [ForeignKey("ReservationId")]
-        public Reservation Reservation { get; set; }
+        [JsonIgnore]
+        public Reservation? Reservation { get; set; } // ✅ fixed
 
         public DateTime PaymentDate { get; set; } = DateTime.UtcNow;
 

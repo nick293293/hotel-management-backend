@@ -27,12 +27,12 @@ namespace BackendApi.Controllers
             public string Status { get; set; } = string.Empty;
         }
 
-        // Make this PUBLIC to fix the accessibility issue
+        // Public to avoid accessibility error with public action signature
         public sealed class CreateReservationRequest
         {
             public int UserId { get; set; }
             public int RoomId { get; set; }
-            public DateTime CheckInDate { get; set; }   // expects ISO date/time
+            public DateTime CheckInDate { get; set; }   // expects ISO date/time or "yyyy-MM-dd"
             public DateTime CheckOutDate { get; set; }
             public decimal TotalAmount { get; set; }
             public string? Status { get; set; }         // optional; default "reserved"
@@ -119,7 +119,7 @@ namespace BackendApi.Controllers
             {
                 UserId = req.UserId,
                 RoomId = req.RoomId,
-                CheckInDate = req.CheckInDate.Date,   // store as date-only semantics if your column is DATE
+                CheckInDate = req.CheckInDate.Date,   // store date-only if your column is DATE
                 CheckOutDate = req.CheckOutDate.Date,
                 TotalAmount = req.TotalAmount,
                 Status = status,
@@ -130,19 +130,21 @@ namespace BackendApi.Controllers
             _db.Reservations.Add(entity);
             await _db.SaveChangesAsync();
 
-            var payload = new ReservationDto
+            // Wrap response with a success message
+            return CreatedAtAction(nameof(GetById), new { id = entity.ReservationId }, new
             {
-                ReservationId = entity.ReservationId,
-                UserId = entity.UserId,
-                RoomId = entity.RoomId,
-                CheckInDate = entity.CheckInDate,
-                CheckOutDate = entity.CheckOutDate,
-                TotalAmount = entity.TotalAmount,
-                Status = entity.Status
-            };
-
-            // Uses GetById for Location header
-            return CreatedAtAction(nameof(GetById), new { id = entity.ReservationId }, payload);
+                message = "Reservation added successfully.",
+                reservation = new
+                {
+                    entity.ReservationId,
+                    entity.UserId,
+                    entity.RoomId,
+                    entity.CheckInDate,
+                    entity.CheckOutDate,
+                    entity.TotalAmount,
+                    entity.Status
+                }
+            });
         }
     }
 }
